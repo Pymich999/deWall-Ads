@@ -37,10 +37,12 @@ const WallList = () => {
     const filtered = wallList.filter(
       (wall) =>
         wall.city.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        (!selectedLocation || wall.city === selectedLocation)
+        (!selectedLocation || wall.city === selectedLocation) &&
+        wall.hide === false // Only show walls with hide === false
     );
     setFilteredWalls(filtered);
   }, [searchQuery, selectedLocation, wallList]);
+
 
   return (
     <div className="homepage">

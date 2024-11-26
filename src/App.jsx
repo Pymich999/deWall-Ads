@@ -1,14 +1,17 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import MainLayout from './layouts/MainLayout';
-import AuthLayout from './layouts/AuthLayout';
-import HomepageLayout from './layouts/Homepagelayout';
-import Home from './pages/Home';
-import Profile from './pages/Profile';
-import Authcomponent from './components/Authcomponent'; 
-import Addwall from './pages/Addwall';
-import Searchwall from './pages/Searchwall';
-import WallDetails from './components/Walldetails';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import MainLayout from "./layouts/MainLayout";
+import AuthLayout from "./layouts/AuthLayout";
+import HomepageLayout from "./layouts/Homepagelayout";
+import AdminLayout from "./layouts/AdminLayout"; // New Admin Layout
+import Home from "./pages/Home";
+import Profile from "./pages/Profile";
+import Authcomponent from "./components/Authcomponent";
+import Addwall from "./pages/Addwall";
+import Searchwall from "./pages/Searchwall";
+import WallDetails from "./components/Walldetails";
+import AdminPanel from "./pages/AdminPanel";
+import RequireAdminAuth from "./components/RequireAdminAuth"; // Admin Auth Guard
 
 const App = () => {
   return (
@@ -38,11 +41,19 @@ const App = () => {
           }
         />
 
+        {/* Admin Layout */}
+        <Route
+          element={
+            <RequireAdminAuth>
+              <AdminLayout />
+            </RequireAdminAuth>
+          }
+        >
+          <Route path="/admin-panel" element={<AdminPanel />} />
+        </Route>
       </Routes>
     </Router>
   );
 };
 
 export default App;
-
-

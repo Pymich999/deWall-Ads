@@ -1,10 +1,12 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import WallItem from './Wallitem';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import WallItem from "./Wallitem";
 
 const FeaturedWalls = ({ wallList }) => {
-  const navigate = useNavigate(); // Hook for navigation
-  const featuredWalls = wallList.slice(0, 3); // Display first 3 walls as featured
+  const navigate = useNavigate();
+
+  // Filter walls where hide is true and slice the first 3 for featured walls
+  const featuredWalls = wallList.filter((wall) => wall.hide).slice(0, 3);
 
   return (
     <div className="featured-walls p-6">
@@ -23,4 +25,6 @@ const FeaturedWalls = ({ wallList }) => {
 };
 
 export default FeaturedWalls;
+
+
 

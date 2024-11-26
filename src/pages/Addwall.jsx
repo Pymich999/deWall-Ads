@@ -72,6 +72,7 @@ const AddWallForm = () => {
     }));
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -94,18 +95,23 @@ const AddWallForm = () => {
         throw new Error("A wall with this site ID already exists.");
       }
 
+      // Add wall to Firestore with `hide` defaulting to true
       await addDoc(collection(db, "dewall", "database", "wall_list"), {
         ...wallData,
         site_id: siteId,
         tags,
+        hide: true, // Default to hidden
       });
 
-      alert("Wall added successfully!");
-      navigate("/");
+      alert("Wall added successfully and sent for admin approval!");
+      navigate("/"); // Redirect to homepage
     } catch (error) {
       console.error("Error adding document:", error);
+      alert("Error adding wall. Please try again.");
     }
   };
+
+
 
   return (
     <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md border border-blue-100">
