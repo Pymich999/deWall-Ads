@@ -54,10 +54,6 @@ const Profile = () => {
               <p className="mb-2">
                 <strong className="font-semibold">Mobile:</strong> {userData?.mobile}
               </p>
-              <p className="mb-2">
-                <strong className="font-semibold">Location:</strong>
-                <span className="text-gray-600">{` Latitude: ${userData?.location.latitude}, Longitude: ${userData?.location.longitude}`}</span>
-              </p>
             </div>
           </div>
         );

@@ -8,17 +8,19 @@ import FeaturedWalls from "../components/Featuredwalls";
 import ExploreCities from "../components/Explorecity";
 import CallToAction from "../components/Homefooter";
 import { useNavigate } from "react-router-dom";
-import { MapPinIcon, ShareIcon } from "@heroicons/react/24/outline";
-import useLocation from "../Hooks/Location"; // Import the custom hook
+import { MapPinIcon, ShareIcon, ChatBubbleLeftIcon } from "@heroicons/react/24/outline";
+import useLocation from "../Hooks/Location"; //Import the custom hook
+import { createOrGetChat } from "../firestoreFunctions";
+import { useAuth } from "../context/AuthContext";
 
 const WallList = () => {
   const [wallList, setWallList] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredWalls, setFilteredWalls] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState("");
-
+  const { currentUser, loading } = useAuth(); // Fetch the logged-in user
   const navigate = useNavigate();
-  const { location, error } = useLocation(); // Use the custom hook
+  const { location, error } = useLocation();
 
   useEffect(() => {
     const getWalls = async () => {
@@ -44,6 +46,26 @@ const WallList = () => {
   }, [searchQuery, selectedLocation, wallList]);
 
 
+  const handleChat = async (recipientUserId) => {
+    if (loading) {
+      console.error("Authentication data still loading");
+      return;
+    }
+
+    if (!currentUser) {
+      console.error("User not logged in");
+      return;
+    }
+
+    try {
+      const chatId = await createOrGetChat(recipientUserId);
+      navigate(`/chats/${chatId}`);
+    } catch (err) {
+      console.error("Error starting chat:", err);
+    }
+  };
+
+
   return (
     <div className="homepage">
       {/* Homepage Header */}
@@ -55,17 +77,28 @@ const WallList = () => {
             <MapPinIcon className="h-5 w-5 mr-2" />
             <span>
               {location
-                ? `${location.state || "Unknown State"}, ${location.country || "Unknown Country"
-                }`
+                ? `${location.state || "Unknown State"}, ${location.country || "Unknown Country"}`
                 : error || "Fetching location..."}
             </span>
           </div>
 
-          {/* Share Button */}
-          <button className="flex items-center">
-            <ShareIcon className="h-5 w-5 mr-1" />
-            <span>Share</span>
-          </button>
+          <div className="flex items-center space-x-4">
+            {/* Chat Icon */}
+            <button
+              className="flex items-center"
+              onClick={() => handleChat("recipientUserId")} // Replace with dynamic recipient ID
+            >
+              <ChatBubbleLeftIcon className="h-6 w-6 mr-1" />
+              <span>Chat</span>
+            </button>
+
+
+            {/* Share Button */}
+            <button className="flex items-center">
+              <ShareIcon className="h-5 w-5 mr-1" />
+              <span>Share</span>
+            </button>
+          </div>
         </div>
 
         {/* Search Bar */}
@@ -73,7 +106,7 @@ const WallList = () => {
           <input
             className="w-full md:w-1/3 p-2 border border-gray-300 rounded-md"
             placeholder="Search Wall by (City, Pincode...)"
-            onClick={() => navigate('/search')} // Redirects to the search page on click
+            onClick={() => navigate("/search")} // Redirects to the search page on click
             readOnly
           />
         </div>

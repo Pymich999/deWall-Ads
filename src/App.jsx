@@ -6,6 +6,7 @@ import HomepageLayout from "./layouts/Homepagelayout";
 import AdminLayout from "./layouts/AdminLayout"; // New Admin Layout
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
+import ChatPage from "./pages/Chatpage";
 import Authcomponent from "./components/Authcomponent";
 import Addwall from "./pages/Addwall";
 import Searchwall from "./pages/Searchwall";
@@ -23,6 +24,7 @@ const App = () => {
           <Route path="/add" element={<Addwall />} />
           <Route path="/search" element={<Searchwall />} />
           <Route path="/wall-details/:id" element={<WallDetails />} />
+          <Route path="/chats/:chatId" element={<ChatPage />} />
         </Route>
 
         {/* Auth Layout */}

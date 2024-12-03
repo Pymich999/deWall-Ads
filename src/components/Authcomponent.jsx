@@ -5,9 +5,11 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
+    signInWithPopup
 } from "firebase/auth";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import { googleProvider } from "../firebase";
 
 const AuthComponent = () => {
     const [email, setEmail] = useState("");
@@ -42,6 +44,11 @@ const AuthComponent = () => {
         setError(null);
     };
 
+    // Helper function to generate a device ID (placeholder)
+    const generateDeviceID = () => {
+        return "device_" + Math.random().toString(36).substring(2, 15);
+    };
+
     // Toggle between admin and user modes
     const toggleAdminMode = () => {
         setIsAdminSignUp(!isAdminSignUp);
@@ -68,7 +75,7 @@ const AuthComponent = () => {
             const uid = user.uid;
 
             // Save admin details in Firestore
-            await setDoc(doc(db,  "admin", uid), {
+            await setDoc(doc(db, "admin", uid), {
                 name: fullName,
                 role: "Manager",
             });
@@ -117,156 +124,224 @@ const AuthComponent = () => {
     const handleSignUp = async () => {
         setLoading(true);
         setError(null);
-
         try {
-            const userCredential = await createUserWithEmailAndPassword(
-                auth,
-                email,
-                password
-            );
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
+            const uid = user.uid;
 
-            // Save user details to Firestore
-            await setDoc(doc(db, "dewall", "user_node", "profile", user.uid), {
-                fullName,
-                email,
-                mobile,
-                state,
-                userType,
-            });
+            // Get user's location using Geolocation API
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const location = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                    };
 
-            console.log("User account created successfully.");
-            navigate("/profile"); // Redirect to user profile
+                    // Save additional info to Firestore
+                    await setDoc(doc(db, "dewall", "user_node", "profile", uid), {
+                        email: user.email,
+                        uid,
+                        full_name: fullName,
+                        mobile,
+                        state,
+                        user_type: userType,
+                        location,
+                        device_id: generateDeviceID(),
+                        timestamp: new Date(),
+                    });
+
+                    console.log("User signed up and profile created.");
+                    navigate("/profile"); // Redirect to profile page
+                },
+                (locationError) => {
+                    setError("Failed to retrieve location. Please enable location services.");
+                    console.error("Location Error:", locationError);
+                }
+            );
         } catch (error) {
-            console.error("Error creating user account:", error);
+            console.error("Error signing up:", error);
             setError(error.message);
         } finally {
             setLoading(false);
         }
     };
 
-    return (
-        <div className="auth-container p-4 max-w-md mx-auto">
-            <h2 className="text-2xl font-bold mb-4">
-                {isSignUp
+
+    //Google sign in auth
+    const handleGoogleSignIn = async () => {
+        try {
+            // Sign in the user with Google
+            const result = await signInWithPopup(auth, googleProvider);
+
+            // Get the signed-in user's information
+            const user = result.user;
+            const { uid, displayName, email, } = user;
+
+            console.log("User logged in with Google:", user);
+
+
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const location = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                    };
+
+                    // Save additional info to Firestore
+                    await setDoc(doc(db, "dewall", "user_node", "profile", uid), {
+                        uid: uid,
+                        full_name: displayName,
+                        email: email,
+                        timestamp: new Date(),
+                        location,
+                        device_id: generateDeviceID(),
+
+                    
+                    }, { merge: true });
+
+            console.log("User signed up and profile created.");
+            navigate("/profile"); // Redirect to profile page
+        },
+        (locationError) => {
+            setError("Failed to retrieve location. Please enable location services.");
+            console.error("Location Error:", locationError);
+        }
+            );
+        } catch (error) {
+    console.error("Error signing up:", error);
+    setError(error.message);
+} finally {
+    setLoading(false);
+}
+    }
+
+
+return (
+    <div className="auth-container p-4 max-w-md mx-auto">
+        <h2 className="text-2xl font-bold mb-4">
+            {isSignUp
+                ? isAdminSignUp
+                    ? "Admin Sign-Up"
+                    : "Create Account"
+                : "Login"}
+        </h2>
+
+        {isSignUp && (
+            <>
+                <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Full Name"
+                    className="input-field my-2 p-2 border rounded w-full"
+                />
+                <PhoneInput
+                    country={"in"}
+                    value={mobile}
+                    onChange={setMobile}
+                    inputClass="w-full border rounded-md"
+                    containerClass="my-2"
+                />
+                <input
+                    type="text"
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                    placeholder="State"
+                    className="input-field my-2 p-2 border rounded w-full"
+                />
+                {!isAdminSignUp && (
+                    <select
+                        value={userType}
+                        onChange={(e) => setUserType(e.target.value)}
+                        className="input-field my-2 p-2 border rounded w-full"
+                    >
+                        <option value="">Select User Type</option>
+                        {userTypes.map((type, index) => (
+                            <option key={index} value={type}>
+                                {type}
+                            </option>
+                        ))}
+                    </select>
+                )}
+                {isAdminSignUp && (
+                    <input
+                        type="text"
+                        value={adminKey}
+                        onChange={(e) => setAdminKey(e.target.value)}
+                        placeholder="Admin Key"
+                        className="input-field my-2 p-2 border rounded w-full"
+                    />
+                )}
+            </>
+        )}
+
+        <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            className="input-field my-2 p-2 border rounded w-full"
+        />
+        <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            className="input-field my-2 p-2 border rounded w-full"
+            disabled={isAdminSignUp} // Password not needed for admin sign-up
+        />
+
+        <button
+            onClick={
+                isSignUp
                     ? isAdminSignUp
-                        ? "Admin Sign-Up"
-                        : "Create Account"
+                        ? handleAdminSignUp
+                        : handleSignUp
+                    : handleLogin
+            }
+            disabled={loading}
+            className="auth-button bg-blue-500 text-white px-4 py-2 rounded w-full mt-4"
+        >
+            {loading
+                ? isSignUp
+                    ? isAdminSignUp
+                        ? "Signing Up as Admin..."
+                        : "Signing Up..."
+                    : "Logging In..."
+                : isSignUp
+                    ? isAdminSignUp
+                        ? "Sign Up as Admin"
+                        : "Sign Up"
                     : "Login"}
-            </h2>
+        </button>
 
-            {isSignUp && (
-                <>
-                    <input
-                        type="text"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Full Name"
-                        className="input-field my-2 p-2 border rounded w-full"
-                    />
-                    <PhoneInput
-                        country={"in"}
-                        value={mobile}
-                        onChange={setMobile}
-                        inputClass="w-full border rounded-md"
-                        containerClass="my-2"
-                    />
-                    <input
-                        type="text"
-                        value={state}
-                        onChange={(e) => setState(e.target.value)}
-                        placeholder="State"
-                        className="input-field my-2 p-2 border rounded w-full"
-                    />
-                    {!isAdminSignUp && (
-                        <select
-                            value={userType}
-                            onChange={(e) => setUserType(e.target.value)}
-                            className="input-field my-2 p-2 border rounded w-full"
-                        >
-                            <option value="">Select User Type</option>
-                            {userTypes.map((type, index) => (
-                                <option key={index} value={type}>
-                                    {type}
-                                </option>
-                            ))}
-                        </select>
-                    )}
-                    {isAdminSignUp && (
-                        <input
-                            type="text"
-                            value={adminKey}
-                            onChange={(e) => setAdminKey(e.target.value)}
-                            placeholder="Admin Key"
-                            className="input-field my-2 p-2 border rounded w-full"
-                        />
-                    )}
-                </>
-            )}
+        {error && <p className="text-red-500 mt-2">{error}</p>}
 
-            <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-                className="input-field my-2 p-2 border rounded w-full"
-            />
-            <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className="input-field my-2 p-2 border rounded w-full"
-                disabled={isAdminSignUp} // Password not needed for admin sign-up
-            />
+        <button onClick={handleGoogleSignIn} className="google-signin-button bg-red-500 text-white px-4 py-2 rounded w-full mt-2">
+            Sign In with Google
+        </button>
 
-            <button
-                onClick={
-                    isSignUp
-                        ? isAdminSignUp
-                            ? handleAdminSignUp
-                            : handleSignUp
-                        : handleLogin
-                }
-                disabled={loading}
-                className="auth-button bg-blue-500 text-white px-4 py-2 rounded w-full mt-4"
+        {!isAdminSignUp && (
+            <p
+                onClick={toggleAuthMode}
+                className="auth-toggle-link text-blue-500 cursor-pointer mt-4 text-center"
             >
-                {loading
-                    ? isSignUp
-                        ? isAdminSignUp
-                            ? "Signing Up as Admin..."
-                            : "Signing Up..."
-                        : "Logging In..."
-                    : isSignUp
-                        ? isAdminSignUp
-                            ? "Sign Up as Admin"
-                            : "Sign Up"
-                        : "Login"}
-            </button>
+                {isSignUp
+                    ? "Already have an account? Login"
+                    : "Don't have an account? Create one"}
+            </p>
+        )}
 
-            {error && <p className="text-red-500 mt-2">{error}</p>}
-
-            {!isAdminSignUp && (
-                <p
-                    onClick={toggleAuthMode}
-                    className="auth-toggle-link text-blue-500 cursor-pointer mt-4 text-center"
-                >
-                    {isSignUp
-                        ? "Already have an account? Login"
-                        : "Don't have an account? Create one"}
-                </p>
-            )}
-
-            {!isSignUp && (
-                <p
-                    onClick={toggleAdminMode}
-                    className="auth-toggle-link text-blue-500 cursor-pointer mt-4 text-center"
-                >
-                    Admin? Sign Up Here
-                </p>
-            )}
-        </div>
-    );
-};
+        {!isSignUp && (
+            <p
+                onClick={toggleAdminMode}
+                className="auth-toggle-link text-blue-500 cursor-pointer mt-4 text-center"
+            >
+                Admin? Sign Up Here
+            </p>
+        )}
+    </div>
+);
+        };
 
 export default AuthComponent;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { db, auth } from "../firebase";
-import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { addDoc, collection, query, where, getDocs, getDoc, doc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 const AddWallForm = () => {
@@ -26,17 +26,40 @@ const AddWallForm = () => {
   });
 
   useEffect(() => {
-    // Load user profile data
-    const user = auth.currentUser;
-    if (user) {
-      setWallData((prevData) => ({
-        ...prevData,
-        owner_uid: user.uid,
-        owner_username: user.displayName || "",
-        owner_phone: user.phoneNumber || "",
-      }));
-    }
+    const fetchUserData = async () => {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const userDocRef = doc(db, "dewall", "user_node", "profile", user.uid);
+          const userDoc = await getDoc(userDocRef);
+
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+
+            // Safely fetch fields or set defaults if fields are missing
+            const ownerUsername = userData.full_name || user.displayName || "Anonymous";
+            const ownerPhone = userData.mobile || user.phoneNumber || "";
+
+            setWallData((prevData) => ({
+              ...prevData,
+              owner_uid: user.uid,
+              owner_username: ownerUsername,
+              owner_phone: ownerPhone,
+            }));
+          } else {
+            console.error("User profile document does not exist.");
+          }
+        } else {
+          console.error("No user is logged in.");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
   }, []);
+
 
   const handleImageUpload = (e, index) => {
     const file = e.target.files[0];

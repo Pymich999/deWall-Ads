@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 import fetchWallDetails from "../utility/Fetchwalldetails";
+import { db, auth } from "../firebase";
+import { createOrGetChat, sendMessage } from "../firestoreFunctions";
 
 const WallDetails = () => {
     const { id } = useParams(); // Get wall ID from the URL params
@@ -8,6 +10,51 @@ const WallDetails = () => {
     const [wallDetails, setWallDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+
+    const handleEnquiry = async () => {
+        try {
+            // Ensure the current user is authenticated
+            const currentUser = auth.currentUser;
+            if (!currentUser) {
+                alert("Please log in to make an enquiry.");
+                return;
+            }
+
+            const currentUserId = currentUser.uid;
+            const ownerId = wallDetails?.owner_uid; // Ensure wallDetails and owner_uid exist
+            if (!ownerId) {
+                alert("Wall owner details are missing. Cannot proceed with the enquiry.");
+                return;
+            }
+
+            // Generate enquiry message from wall details
+            const wallText = `
+    Wall Details:
+    City: ${wallDetails?.city || "N/A"}
+    District: ${wallDetails?.district || "N/A"}
+    Pincode: ${wallDetails?.pincode || "N/A"}
+    State: ${wallDetails?.state || "N/A"}
+    Locality: ${wallDetails?.locality || "N/A"}
+    Price: ₹${wallDetails?.price || "N/A"}
+    
+    Is this wall still available?
+            `;
+
+            // Create or fetch the chat ID
+            const chatId = await createOrGetChat(ownerId); // Pass only the ownerId (as per createOrGetChat logic)
+
+            // Send the pre-filled enquiry message
+            await sendMessage(chatId, currentUserId, wallText);
+
+            // Redirect to the chat screen
+            navigate(`/chats/${chatId}`);
+        } catch (error) {
+            console.error("Error making enquiry:", error);
+            alert("Failed to make an enquiry. Please try again later.");
+        }
+    };
+
 
     useEffect(() => {
         const getWallDetails = async () => {
@@ -18,7 +65,7 @@ const WallDetails = () => {
             } catch (err) {
                 console.error("Error fetching wall details:", err);
                 setError("Failed to load wall details.");
-                
+
             } finally {
                 setLoading(false);
             }
@@ -38,7 +85,7 @@ const WallDetails = () => {
         return <div className="text-center p-6">Wall details not found.</div>;
     }
 
-    
+
 
     return (
         <div className="p-6 bg-gray-100 min-h-screen">
@@ -121,7 +168,7 @@ const WallDetails = () => {
                 <div className="mt-6 flex justify-center">
                     <button
                         className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition duration-200"
-                        onClick={() => alert("Make Enquiry functionality coming soon!")}
+                        onClick={handleEnquiry}
                     >
                         Make Enquiry
                     </button>
