@@ -10,7 +10,7 @@ import CallToAction from "../components/Homefooter";
 import { useNavigate } from "react-router-dom";
 import { MapPinIcon, ShareIcon, ChatBubbleLeftIcon } from "@heroicons/react/24/outline";
 import useLocation from "../Hooks/Location"; //Import the custom hook
-import { createOrGetChat } from "../firestoreFunctions";
+import { createOrGetChat, createChat } from "../firestoreFunctions";
 import { useAuth } from "../context/AuthContext";
 
 const WallList = () => {
@@ -48,22 +48,25 @@ const WallList = () => {
 
   const handleChat = async (recipientUserId) => {
     if (loading) {
-      console.error("Authentication data still loading");
-      return;
+        console.error("Authentication data still loading");
+        return;
     }
 
     if (!currentUser) {
-      console.error("User not logged in");
-      return;
+        console.error("User not logged in");
+        return;
     }
 
     try {
-      const chatId = await createOrGetChat(recipientUserId);
-      navigate(`/chats/${chatId}`);
+        const chatId = await createOrGetChat(recipientUserId);
+        navigate(`/chats/${chatId}`);
     } catch (err) {
-      console.error("Error starting chat:", err);
+        console.error("Error starting chat:", err);
     }
-  };
+};
+
+
+
 
 
   return (

@@ -4,45 +4,39 @@ import { collection, doc, setDoc, getDocs, getDoc, addDoc, serverTimestamp, quer
 // Firestore Functions
 import { getAuth } from "firebase/auth";
 
+
 export const createOrGetChat = async (recipientUserId) => {
     const auth = getAuth();
     const currentUser = auth.currentUser;
 
-    if (!currentUser) throw new Error("User not logged in");
+    if (!currentUser) {
+        throw new Error("User not logged in");
+    }
 
     const chatsRef = collection(db, "chats");
 
-    // Query for existing chats where the current user is a participant
-    const q = query(chatsRef, where("participants", "array-contains", currentUser.uid));
+    // Query existing chats where the current user is a participant
+    const q = query(
+        chatsRef,
+        where("participants", "array-contains", currentUser.uid)
+    );
 
     const querySnapshot = await getDocs(q);
 
-    if (querySnapshot.empty) {
-        // No chats found
-        return [];
+    // Look for an existing chat between the current user and recipient
+    for (const doc of querySnapshot.docs) {
+        const chatData = doc.data();
+        if (
+            chatData.participants.includes(recipientUserId) &&
+            chatData.participants.includes(currentUser.uid)
+        ) {
+            return doc.id; // Return existing chat ID if found
+        }
     }
 
-    // Return chats as an array of chat objects (or IDs)
-    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
-    const createChat = async (recipientUserId) => {
-        const auth = getAuth();
-        const currentUser = auth.currentUser;
-
-        if (!currentUser) throw new Error("User not logged in");
-
-        const chatsRef = collection(db, "chats");
-
-        // Create a new chat
-        const newChatRef = await addDoc(chatsRef, {
-            participants: [currentUser.uid, recipientUserId],
-            createdAt: serverTimestamp(),
-        });
-
-        return newChatRef.id;
-    };
+    // No chat found, return null to indicate chat creation is needed
+    return null;
 };
-
 
 
 export const fetchChatTitle = async (chatId, currentUserId) => {
@@ -142,4 +136,24 @@ export const fetchUserName = async (userId) => {
         console.error("Error fetching user name:", error);
         throw error;
     }
+};
+
+
+export const createChat = async (recipientUserId) => {
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+        throw new Error("User not logged in");
+    }
+
+    const chatsRef = collection(db, "chats");
+
+    // Create a new chat
+    const newChatRef = await addDoc(chatsRef, {
+        participants: [currentUser.uid, recipientUserId],
+        createdAt: serverTimestamp(),
+    });
+
+    return newChatRef.id;
 };

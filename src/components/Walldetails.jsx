@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 import fetchWallDetails from "../utility/Fetchwalldetails";
 import { db, auth } from "../firebase";
-import { createOrGetChat, sendMessage } from "../firestoreFunctions";
+import { createOrGetChat, sendMessage} from "../firestoreFunctions";
+import { createChat } from "../firestoreFunctions";
 
 const WallDetails = () => {
     const { id } = useParams(); // Get wall ID from the URL params
@@ -42,18 +43,26 @@ const WallDetails = () => {
             `;
 
             // Create or fetch the chat ID
-            const chatId = await createOrGetChat(ownerId); // Pass only the ownerId (as per createOrGetChat logic)
+            const chatId = await createOrGetChat(ownerId);
 
-            // Send the pre-filled enquiry message
-            await sendMessage(chatId, currentUserId, wallText);
+            if (!chatId) {
+                // If no chat exists, create a new one
+                const newChatId = await createChat(ownerId);
+                // Send the pre-filled enquiry message
+                await sendMessage(newChatId, currentUserId, wallText);
+                navigate(`/chats/${newChatId}`);
+            } else {
+                // If chat exists, send the enquiry message
+                await sendMessage(chatId, currentUserId, wallText);
+                navigate(`/chats/${chatId}`);
+            }
 
-            // Redirect to the chat screen
-            navigate(`/chats/${chatId}`);
         } catch (error) {
             console.error("Error making enquiry:", error);
             alert("Failed to make an enquiry. Please try again later.");
         }
     };
+
 
 
     useEffect(() => {
