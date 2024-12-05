@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 import fetchWallDetails from "../utility/Fetchwalldetails";
 import { db, auth } from "../firebase";
-import { createOrGetChat, sendMessage} from "../firestoreFunctions";
+import { createOrGetChat, sendMessage } from "../firestoreFunctions";
 import { createChat } from "../firestoreFunctions";
 
 const WallDetails = () => {
@@ -112,17 +112,24 @@ const WallDetails = () => {
                 </h2>
 
                 {/* Wall Photo */}
-                {wallDetails.photo_urls ? (
-                    <img
-                        src={wallDetails.photo_urls}
-                        alt="Wall"
-                        className="w-full h-64 object-cover rounded-md mb-6"
-                    />
-                ) : (
-                    <div className="w-full h-64 bg-gray-200 rounded-md flex items-center justify-center text-gray-500 mb-6">
-                        No Image Available
-                    </div>
-                )}
+                <div className="mb-6">
+                    {wallDetails.photo_urls && wallDetails.photo_urls.length > 0 ? (
+                        <div className="flex overflow-x-auto space-x-4">
+                            {wallDetails.photo_urls.map((url, index) => (
+                                <img
+                                    key={index}
+                                    src={url}
+                                    alt={`Wall Image ${index + 1}`}
+                                    className="h-64 object-cover rounded-md mb-4" // You can adjust the height as needed
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="w-full h-64 bg-gray-200 rounded-md flex items-center justify-center text-gray-500 mb-6">
+                            No Images Available
+                        </div>
+                    )}
+                </div>
 
                 {/* Wall Info Table */}
                 <table className="w-full border-collapse border border-gray-300">
@@ -132,16 +139,16 @@ const WallDetails = () => {
                             <td className="border border-gray-300 p-2">{wallDetails.city || "N/A"}</td>
                         </tr>
                         <tr>
-                            <th className="border border-gray-300 p-2 bg-gray-100 text-left">District</th>
-                            <td className="border border-gray-300 p-2">{wallDetails.district || "N/A"}</td>
+                            <th className="border border-gray-300 p-2 bg-gray-100 text-left">State</th>
+                            <td className="border border-gray-300 p-2">{wallDetails.state || "N/A"}</td>
                         </tr>
                         <tr>
-                            <th className="border border-gray-300 p-2 bg-gray-100 text-left">Coordinates</th>
-                            <td className="border border-gray-300 p-2">
-                                {wallDetails.coordinates
-                                    ? `${wallDetails.coordinates._lat}, ${wallDetails.coordinates._long}`
-                                    : "N/A"}
-                            </td>
+                            <th className="border border-gray-300 p-2 bg-gray-100 text-left">Adress</th>
+                            <td className="border border-gray-300 p-2">{wallDetails.locality || "N/A"}</td>
+                        </tr>
+                        <tr>
+                            <th className="border border-gray-300 p-2 bg-gray-100 text-left">District</th>
+                            <td className="border border-gray-300 p-2">{wallDetails.district || "N/A"}</td>
                         </tr>
                         <tr>
                             <th className="border border-gray-300 p-2 bg-gray-100 text-left">Pincode</th>
@@ -159,13 +166,12 @@ const WallDetails = () => {
                             </td>
                         </tr>
                         <tr>
-                            <th className="border border-gray-300 p-2 bg-gray-100 text-left">Tags</th>
-                            <td className="border border-gray-300 p-2">
-                                {wallDetails.tags && wallDetails.tags.length > 0
-                                    ? wallDetails.tags.join(", ")
-                                    : "N/A"}
+                            <th className="border border-gray-300 p-2 bg-gray-100 text-left">Rent/Month</th>
+                            <td className="border border-gray-300 p-2 text-green-600 font-semibold">
+                                ₹{wallDetails.rent_per_month ? wallDetails.rent_per_month : "N/A"}
                             </td>
                         </tr>
+
                         <tr>
                             <th className="border border-gray-300 p-2 bg-gray-100 text-left">Owner</th>
                             <td className="border border-gray-300 p-2">{wallDetails.owner_username || "N/A"}</td>

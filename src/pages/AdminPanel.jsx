@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
+import { useNavigate } from "react-router-dom";
 
 const AdminPanel = () => {
     const [walls, setWalls] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate(); 
 
     // Fetch walls with `hide === true` (pending approval)
     const fetchPendingWalls = async () => {
@@ -54,6 +56,12 @@ const AdminPanel = () => {
     return (
         <div className="p-6 bg-gray-100 min-h-screen">
             <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+                <button
+                    onClick={() => navigate("/auth")} // Navigate to homepage
+                    className="mb-6 text-sm text-blue-600 hover:underline"
+                >
+                    &larr; Back to Login
+                </button>
                 <h1 className="text-2xl font-bold text-blue-900 mb-6 text-center">Admin Panel</h1>
 
                 {loading && <p className="text-center text-blue-700">Loading...</p>}

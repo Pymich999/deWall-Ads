@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 const AddWallForm = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [uploading, setUploading] = useState(false);
   const [wallData, setWallData] = useState({
     available: true,
     city: "",
@@ -61,18 +62,44 @@ const AddWallForm = () => {
   }, []);
 
 
-  const handleImageUpload = (e, index) => {
+  const handleImageUpload = async (e, index) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const updatedPhotoUrls = [...wallData.photo_urls];
-      updatedPhotoUrls[index] = reader.result; // Store Base64 string as URL
-      setWallData((prevData) => ({ ...prevData, photo_urls: updatedPhotoUrls }));
-    };
-    reader.readAsDataURL(file);
+    setUploading(true); // Show loading indicator
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "wall_upload"); // Replace with your Cloudinary upload preset
+
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/dubb7rhoy/image/upload`, // Replace with your Cloudinary URL
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.secure_url) {
+        const updatedPhotoUrls = [...wallData.photo_urls];
+        updatedPhotoUrls[index] = data.secure_url; // Store the secure URL returned by Cloudinary
+        setWallData((prevData) => ({ ...prevData, photo_urls: updatedPhotoUrls }));
+      } else {
+        console.error("Image upload failed:", data);
+        alert("Image upload failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error uploading image to Cloudinary:", error);
+      alert("Image upload failed. Please try again.");
+    } finally {
+      setUploading(false); // Hide loading indicator
+    }
   };
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -85,16 +112,6 @@ const AddWallForm = () => {
       setWallData((prevData) => ({ ...prevData, [name]: value }));
     }
   };
-
-  const handleSliderChange = (e) => {
-    const price = e.target.value;
-    setWallData((prevData) => ({
-      ...prevData,
-      price: price,
-      rent_per_month: price,
-    }));
-  };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -118,7 +135,6 @@ const AddWallForm = () => {
         throw new Error("A wall with this site ID already exists.");
       }
 
-      // Add wall to Firestore with `hide` defaulting to true
       await addDoc(collection(db, "dewall", "database", "wall_list"), {
         ...wallData,
         site_id: siteId,
@@ -127,7 +143,7 @@ const AddWallForm = () => {
       });
 
       alert("Wall added successfully and sent for admin approval!");
-      navigate("/"); // Redirect to homepage
+      navigate("/");
     } catch (error) {
       console.error("Error adding document:", error);
       alert("Error adding wall. Please try again.");
@@ -225,8 +241,9 @@ const AddWallForm = () => {
           <button
             onClick={() => setStep(2)}
             className="w-full bg-blue-600 text-white font-semibold p-2 rounded-md hover:bg-blue-700 transition duration-200"
+            disabled={uploading} // Disable button while uploading
           >
-            Continue
+            {uploading ? "Uploading..." : "Continue"}
           </button>
         </>
       )}

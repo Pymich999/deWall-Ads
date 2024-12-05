@@ -6,7 +6,7 @@ const FeaturedWalls = ({ wallList }) => {
   const navigate = useNavigate();
 
   // Filter walls where hide is true and slice the first 3 for featured walls
-  const featuredWalls = wallList.filter((wall) => wall.hide).slice(0, 3);
+  const featuredWalls = wallList.filter((wall) => wall.hide === false).slice(0, 3);
 
   return (
     <div className="featured-walls p-6">
@@ -16,7 +16,7 @@ const FeaturedWalls = ({ wallList }) => {
           <WallItem
             key={wall.id}
             {...wall}
-            onClick={() => navigate(`/wall-details/${wall.id}`)} // Add onClick handler
+            onClick={() => navigate(`/wall-details/${wall.id}`)}
           />
         ))}
       </div>
