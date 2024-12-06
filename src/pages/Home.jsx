@@ -48,22 +48,22 @@ const WallList = () => {
 
   const handleChat = async (recipientUserId) => {
     if (loading) {
-        console.error("Authentication data still loading");
-        return;
+      console.error("Authentication data still loading");
+      return;
     }
 
     if (!currentUser) {
-        console.error("User not logged in");
-        return;
+      console.error("User not logged in");
+      return;
     }
 
     try {
-        const chatId = await createOrGetChat(recipientUserId);
-        navigate(`/chats/${chatId}`);
+      const chatId = await createOrGetChat(recipientUserId);
+      navigate(`/chats/${chatId}`);
     } catch (err) {
-        console.error("Error starting chat:", err);
+      console.error("Error starting chat:", err);
     }
-};
+  };
 
 
 
@@ -74,9 +74,8 @@ const WallList = () => {
       {/* Homepage Header */}
       <header className="bg-blue-600 p-4 text-white">
         <h2 className="text-lg font-bold mb-4 text-left">deWallAds</h2>
-        <div className="flex justify-between items-center">
-          {/* Location Display */}
-          <div className="flex items-center">
+        <div className="flex flex-wrap justify-between items-center">
+          <div className="flex items-center mb-2 sm:mb-0">
             <MapPinIcon className="h-5 w-5 mr-2" />
             <span>
               {location
@@ -84,32 +83,23 @@ const WallList = () => {
                 : error || "Fetching location..."}
             </span>
           </div>
-
-          <div className="flex items-center space-x-4">
-            {/* Chat Icon */}
-            <button
-              className="flex items-center"
-              onClick={() => handleChat("recipientUserId")} // Replace with dynamic recipient ID
-            >
-              <ChatBubbleLeftIcon className="h-6 w-6 mr-1" />
-              <span>Chat</span>
+          <div className="flex flex-col sm:flex-row justify-between items-center p-4">
+            <button className="flex items-center text-sm">
+              <ChatBubbleLeftIcon className="h-5 w-5 mr-2" />
+              Chat
             </button>
-
-
-            {/* Share Button */}
-            <button className="flex items-center">
-              <ShareIcon className="h-5 w-5 mr-1" />
-              <span>Share</span>
+            <button className="flex items-center text-sm">
+              <ShareIcon className="h-5 w-5 mr-2" />
+              Share
             </button>
           </div>
-        </div>
 
-        {/* Search Bar */}
+        </div>
         <div className="mt-4 flex justify-center">
           <input
             className="w-full md:w-1/3 p-2 border border-gray-300 rounded-md"
             placeholder="Search Wall by (City, Pincode...)"
-            onClick={() => navigate("/search")} // Redirects to the search page on click
+            onClick={() => navigate("/search")}
             readOnly
           />
         </div>
@@ -130,13 +120,13 @@ const WallList = () => {
       {/* All Walls */}
       <div className="featured-walls p-6">
         <h2 className="text-2xl font-bold mb-4">Recently Added</h2>
-        <div className="wall-list p-6 overflow-x-auto whitespace-nowrap space-x-4 flex scroll-smooth shadow-inner">
+        <div className="wall-list p-4 flex overflow-x-auto space-x-4 scroll-smooth shadow-inner">
           {filteredWalls.length > 0 ? (
             filteredWalls.map((wall) => (
-              <div key={wall.id} className="inline-block">
+              <div key={wall.id} className="w-48 md:w-64 flex-shrink-0">
                 <WallItem
                   {...wall}
-                  onClick={() => navigate(`/wall-details/${wall.id}`)} // Navigate to details page on click
+                  onClick={() => navigate(`/wall-details/${wall.id}`)}
                 />
               </div>
             ))
@@ -145,6 +135,7 @@ const WallList = () => {
           )}
         </div>
       </div>
+
 
       {/* Benefits Section */}
       <BenefitsSection />
