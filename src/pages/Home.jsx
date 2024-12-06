@@ -84,9 +84,12 @@ const WallList = () => {
             </span>
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-center p-4">
-            <button className="flex items-center text-sm">
+            <button
+              className="flex items-center"
+              onClick={() => handleChat("recipientUserId")} // Replace with dynamic recipient ID
+            >
               <ChatBubbleLeftIcon className="h-5 w-5 mr-2" />
-              Chat
+              <span>Chat</span>
             </button>
             <button className="flex items-center text-sm">
               <ShareIcon className="h-5 w-5 mr-2" />
