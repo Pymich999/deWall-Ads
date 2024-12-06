@@ -72,18 +72,17 @@ const ChatPage = () => {
     };
     return (
         <div className="bg-gray-100 min-h-screen flex">
-            {/* Chat List (Conversation Sidebar) */}
+            {/* Chat List (Sidebar) */}
             <div
-                className="w-1/4 bg-white border-r p-4 space-y-4"
+                className="w-1/4 bg-white border-r p-4 space-y-4 hidden md:block" // Hide on small screens
                 style={{
-                    height: "100vh", // Full viewport height for sidebar
-                    overflowY: "auto", // Independent scrolling for sidebar
+                    maxHeight: "100vh",
+                    overflowY: "auto",
                 }}
             >
                 <h2 className="font-bold text-lg">Conversations</h2>
                 {chatList.map((chat) => {
-                    const chatTitle = chatTitles[chat.id] || "Loading..."; // Default title if not available
-
+                    const chatTitle = chatTitles[chat.id] || "Loading...";
                     return (
                         <button
                             key={chat.id}
@@ -103,17 +102,17 @@ const ChatPage = () => {
                     <>
                         {/* Messages Display */}
                         <div
-                            className="flex-1 overflow-y-auto p-4 space-y-4"
+                            className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"
                             style={{
-                                height: "calc(100vh - 80px)", // Reserve space for the input box
+                                maxHeight: "calc(100vh - 80px)", // Reserve space for the input box
                             }}
                         >
                             {messages.map((message) => (
                                 <div
                                     key={message.id}
-                                    className={`p-3 rounded-md max-w-sm ${message.senderId === currentUser.uid
-                                            ? "bg-blue-500 text-white self-end ml-auto"
-                                            : "bg-gray-300 text-black self-start mr-auto"
+                                    className={`p-3 rounded-md w-fit max-w-[75%] ${message.senderId === currentUser.uid
+                                            ? "bg-blue-500 text-white self-end"
+                                            : "bg-gray-300 text-black self-start"
                                         }`}
                                 >
                                     <div className="text-sm">{message.text}</div>
@@ -125,13 +124,7 @@ const ChatPage = () => {
                         </div>
 
                         {/* Input Box */}
-                        <div
-                            className="bg-white p-4 flex items-center space-x-2 border-t"
-                            style={{
-                                height: "80px", // Fixed height for the input box
-                                flexShrink: 0, // Prevent collapsing
-                            }}
-                        >
+                        <div className="bg-white p-4 flex items-center space-x-2 border-t">
                             <input
                                 type="text"
                                 placeholder="Type a message..."
@@ -156,6 +149,7 @@ const ChatPage = () => {
             </div>
         </div>
     );
+
 };
 
 export default ChatPage;
