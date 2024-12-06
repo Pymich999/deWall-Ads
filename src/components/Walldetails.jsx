@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
-import fetchWallDetails from "../utility/Fetchwalldetails";
+import fetchWallDetails from "../utility/FetchWallDetails";
 import { db, auth } from "../firebase";
 import { createOrGetChat, sendMessage } from "../firestoreFunctions";
 import { createChat } from "../firestoreFunctions";
