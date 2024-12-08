@@ -71,13 +71,13 @@ const ChatPage = () => {
         }
     };
     return (
-        <div className="bg-gray-100 min-h-screen flex">
-            {/* Chat List (Sidebar) */}
+        <div className="bg-gray-100 min-h-screen flex flex-col md:flex-row">
+            {/* Sidebar (Conversation List) */}
             <div
-                className="w-1/4 bg-white border-r p-4 space-y-4 hidden md:block" // Hide on small screens
+                className="bg-white border-r w-full md:w-1/4 md:flex flex-col p-4 space-y-4"
                 style={{
-                    maxHeight: "100vh",
-                    overflowY: "auto",
+                    height: "100vh", // Ensure full viewport height
+                    overflowY: "auto", // Enable independent scrolling
                 }}
             >
                 <h2 className="font-bold text-lg">Conversations</h2>
@@ -104,7 +104,7 @@ const ChatPage = () => {
                         <div
                             className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"
                             style={{
-                                maxHeight: "calc(100vh - 80px)", // Reserve space for the input box
+                                height: "calc(100vh - 80px)", // Reserve space for input box
                             }}
                         >
                             {messages.map((message) => (
@@ -117,14 +117,22 @@ const ChatPage = () => {
                                 >
                                     <div className="text-sm">{message.text}</div>
                                     <div className="text-xs text-gray-500 mt-1 text-right">
-                                        {new Date(message.timestamp?.seconds * 1000).toLocaleTimeString()}
+                                        {new Date(
+                                            message.timestamp?.seconds * 1000
+                                        ).toLocaleTimeString()}
                                     </div>
                                 </div>
                             ))}
                         </div>
 
                         {/* Input Box */}
-                        <div className="bg-white p-4 flex items-center space-x-2 border-t">
+                        <div
+                            className="bg-white p-4 flex items-center space-x-2 border-t"
+                            style={{
+                                height: "80px", // Fixed height for the input box
+                                flexShrink: 0, // Prevent collapsing
+                            }}
+                        >
                             <input
                                 type="text"
                                 placeholder="Type a message..."
