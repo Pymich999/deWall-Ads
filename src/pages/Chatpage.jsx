@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { listenToMessages, sendMessage, fetchUserChats, fetchUserName } from "../firestoreFunctions";
+import {
+    listenToMessages,
+    sendMessage,
+    fetchUserChats,
+    fetchUserName,
+} from "../firestoreFunctions";
 import { useNavigate } from "react-router-dom";
 
 const ChatPage = () => {
@@ -26,7 +31,9 @@ const ChatPage = () => {
         const fetchTitles = async () => {
             const titles = {};
             for (const chat of chatList) {
-                const otherUserId = chat.participants.find((id) => id !== currentUser.uid);
+                const otherUserId = chat.participants.find(
+                    (id) => id !== currentUser.uid
+                );
                 try {
                     const name = await fetchUserName(otherUserId);
                     titles[chat.id] = name;
@@ -85,25 +92,27 @@ const ChatPage = () => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[calc(100vh-128px)]">
                 {messages.map((message) => (
                     <div
                         key={message.id}
                         className={`p-3 rounded-lg w-fit max-w-[70%] ${message.senderId === currentUser.uid
-                            ? "bg-blue-500 text-white self-end"
-                            : "bg-gray-200 text-black self-start"
+                                ? "bg-blue-500 text-white self-end"
+                                : "bg-gray-200 text-black self-start"
                             }`}
                     >
                         <p>{message.text}</p>
                         <span className="block text-xs text-right text-gray-400">
-                            {new Date(message.timestamp?.seconds * 1000).toLocaleTimeString()}
+                            {new Date(
+                                message.timestamp?.seconds * 1000
+                            ).toLocaleTimeString()}
                         </span>
                     </div>
                 ))}
             </div>
 
             {/* Input */}
-            <div className="p-4 bg-white flex items-center space-x-2">
+            <div className="p-4 bg-white flex items-center space-x-2 sticky bottom-0">
                 <input
                     type="text"
                     placeholder="Type a message..."
@@ -122,11 +131,7 @@ const ChatPage = () => {
         </div>
     );
 
-    return (
-        <div>
-            {selectedChatId ? renderMessages() : renderChatList()}
-        </div>
-    );
+    return <div>{selectedChatId ? renderMessages() : renderChatList()}</div>;
 };
 
 export default ChatPage;
