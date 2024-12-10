@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { listenToMessages, sendMessage, fetchUserChats, fetchUserName } from "../firestoreFunctions"; // Firestore helper functions
+import { listenToMessages, sendMessage, fetchUserChats, fetchUserName } from "../firestoreFunctions";
 import { useNavigate, useParams } from "react-router-dom";
 
 const ChatPage = () => {
@@ -9,30 +9,21 @@ const ChatPage = () => {
     const [newMessage, setNewMessage] = useState("");
     const [chatList, setChatList] = useState([]);
     const [chatTitles, setChatTitles] = useState({});
-    const { chatId } = useParams();
+    const [selectedChatId, setSelectedChatId] = useState(null); // To track selected conversation
     const navigate = useNavigate();
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-    // Dynamically determine if the screen is mobile-sized
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 768);
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    // Fetch the user's chat list
+    // Fetch user's chat list on load
     useEffect(() => {
         if (!currentUser) return;
 
         fetchUserChats(currentUser.uid)
             .then((chats) => {
                 setChatList(chats);
-                if (!chatId && chats.length > 0) navigate(`/chats/${chats[0].id}`);
             })
             .catch((err) => console.error("Error fetching user chats:", err));
-    }, [currentUser, chatId, navigate]);
+    }, [currentUser]);
 
-    // Fetch chat titles for all conversations
+    // Fetch chat titles for the conversation list
     useEffect(() => {
         if (!chatList.length || !currentUser) return;
 
@@ -52,33 +43,34 @@ const ChatPage = () => {
         fetchTitles();
     }, [chatList, currentUser]);
 
-    // Listen to messages and update chat content
+    // Listen to messages for the selected conversation
     useEffect(() => {
-        if (!chatId || !currentUser) return;
-        const unsubscribe = listenToMessages(chatId, setMessages);
-        return () => unsubscribe();
-    }, [chatId, currentUser]);
+        if (!selectedChatId || !currentUser) return;
 
-    // Handle sending a new message
+        const unsubscribe = listenToMessages(selectedChatId, setMessages);
+        return () => unsubscribe();
+    }, [selectedChatId, currentUser]);
+
+    // Handle sending a message
     const handleSendMessage = async () => {
         if (!newMessage.trim()) return;
         try {
-            await sendMessage(chatId, currentUser.uid, newMessage.trim());
+            await sendMessage(selectedChatId, currentUser.uid, newMessage.trim());
             setNewMessage("");
         } catch (err) {
             console.error("Error sending message:", err);
         }
     };
 
-    // Render conversation list
+    // Render the conversation list
     const renderChatList = () => (
-        <div className="bg-white border-r p-4 space-y-4" style={{ height: "100vh", overflowY: "auto" }}>
+        <div className="bg-white p-4 space-y-4" style={{ height: "100vh", overflowY: "auto" }}>
             <h2 className="font-bold text-lg">Conversations</h2>
             {chatList.map((chat) => (
                 <button
                     key={chat.id}
-                    className={`block w-full text-left p-2 rounded-md ${chat.id === chatId ? "bg-gray-200" : "hover:bg-gray-100"}`}
-                    onClick={() => navigate(`/chats/${chat.id}`)}
+                    className="block w-full text-left p-2 rounded-md hover:bg-gray-100"
+                    onClick={() => setSelectedChatId(chat.id)}
                 >
                     Chat with {chatTitles[chat.id] || "Loading..."}
                 </button>
@@ -86,9 +78,15 @@ const ChatPage = () => {
         </div>
     );
 
-    // Render messages
+    // Render the selected conversation
     const renderMessages = () => (
         <>
+            <div className="flex items-center bg-white p-4 border-b">
+                <button className="text-blue-600 font-bold" onClick={() => setSelectedChatId(null)}>
+                    Back
+                </button>
+                <span className="ml-4 font-bold">Chat with {chatTitles[selectedChatId]}</span>
+            </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50" style={{ height: "calc(100vh - 60px)" }}>
                 {messages.map((message) => (
                     <div
@@ -122,31 +120,10 @@ const ChatPage = () => {
     );
 
     return (
-        <div className="bg-gray-100 min-h-screen">
-            {isMobile ? (
-                <div className="flex flex-col h-full">
-                    {!chatId ? renderChatList() : (
-                        <>
-                            <div className="flex items-center bg-white p-4 border-b">
-                                <button className="text-blue-600 font-bold" onClick={() => navigate(`/chats`)}>
-                                    Back
-                                </button>
-                                <span className="ml-4 font-bold">Chat with {chatTitles[chatId]}</span>
-                            </div>
-                            {renderMessages()}
-                        </>
-                    )}
-                </div>
-            ) : (
-                <div className="flex h-full">
-                    <div className="w-1/4">{renderChatList()}</div>
-                    <div className="flex-1">{chatId ? renderMessages() : <div className="flex justify-center items-center text-gray-500">Select a conversation to start chatting</div>}</div>
-                </div>
-            )}
+        <div className="bg-gray-100 min-h-screen flex">
+            {selectedChatId ? renderMessages() : renderChatList()}
         </div>
     );
 };
 
 export default ChatPage;
-
-
