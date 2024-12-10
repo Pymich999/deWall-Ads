@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { listenToMessages, sendMessage, fetchUserChats, fetchUserName } from "../firestoreFunctions";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const ChatPage = () => {
     const { currentUser } = useAuth();
@@ -9,21 +9,17 @@ const ChatPage = () => {
     const [newMessage, setNewMessage] = useState("");
     const [chatList, setChatList] = useState([]);
     const [chatTitles, setChatTitles] = useState({});
-    const [selectedChatId, setSelectedChatId] = useState(null); // To track selected conversation
+    const [selectedChatId, setSelectedChatId] = useState(null);
     const navigate = useNavigate();
 
-    // Fetch user's chat list on load
     useEffect(() => {
         if (!currentUser) return;
 
         fetchUserChats(currentUser.uid)
-            .then((chats) => {
-                setChatList(chats);
-            })
+            .then((chats) => setChatList(chats))
             .catch((err) => console.error("Error fetching user chats:", err));
     }, [currentUser]);
 
-    // Fetch chat titles for the conversation list
     useEffect(() => {
         if (!chatList.length || !currentUser) return;
 
@@ -43,7 +39,6 @@ const ChatPage = () => {
         fetchTitles();
     }, [chatList, currentUser]);
 
-    // Listen to messages for the selected conversation
     useEffect(() => {
         if (!selectedChatId || !currentUser) return;
 
@@ -51,7 +46,6 @@ const ChatPage = () => {
         return () => unsubscribe();
     }, [selectedChatId, currentUser]);
 
-    // Handle sending a message
     const handleSendMessage = async () => {
         if (!newMessage.trim()) return;
         try {
@@ -62,14 +56,13 @@ const ChatPage = () => {
         }
     };
 
-    // Render the conversation list
     const renderChatList = () => (
-        <div className="bg-white p-4 space-y-4" style={{ height: "100vh", overflowY: "auto" }}>
-            <h2 className="font-bold text-lg">Conversations</h2>
+        <div className="bg-white p-4 h-screen overflow-y-auto">
+            <h2 className="font-bold text-lg mb-4">Conversations</h2>
             {chatList.map((chat) => (
                 <button
                     key={chat.id}
-                    className="block w-full text-left p-2 rounded-md hover:bg-gray-100"
+                    className="block w-full text-left p-2 rounded-lg bg-gray-100 hover:bg-blue-100 mb-2"
                     onClick={() => setSelectedChatId(chat.id)}
                 >
                     Chat with {chatTitles[chat.id] || "Loading..."}
@@ -78,52 +71,63 @@ const ChatPage = () => {
         </div>
     );
 
-    // Render the selected conversation
     const renderMessages = () => (
-        <>
-            <div className="flex items-center bg-white p-4 border-b">
-                <button className="text-blue-600 font-bold" onClick={() => setSelectedChatId(null)}>
-                    Back
+        <div className="flex flex-col h-screen bg-gray-50">
+            {/* Header */}
+            <div className="flex items-center bg-blue-600 text-white p-4">
+                <button
+                    className="mr-4"
+                    onClick={() => setSelectedChatId(null)}
+                >
+                    🔙
                 </button>
-                <span className="ml-4 font-bold">Chat with {chatTitles[selectedChatId]}</span>
+                <h2 className="font-bold text-lg">{chatTitles[selectedChatId]}</h2>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50" style={{ height: "calc(100vh - 60px)" }}>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.map((message) => (
                     <div
                         key={message.id}
-                        className={`p-3 rounded-md w-fit max-w-[75%] ${message.senderId === currentUser.uid
+                        className={`p-3 rounded-lg w-fit max-w-[70%] ${message.senderId === currentUser.uid
                             ? "bg-blue-500 text-white self-end"
-                            : "bg-gray-300 text-black self-start"
+                            : "bg-gray-200 text-black self-start"
                             }`}
                     >
-                        <div className="text-sm">{message.text}</div>
-                        <div className="text-xs text-gray-500 mt-1 text-right">
+                        <p>{message.text}</p>
+                        <span className="block text-xs text-right text-gray-400">
                             {new Date(message.timestamp?.seconds * 1000).toLocaleTimeString()}
-                        </div>
+                        </span>
                     </div>
                 ))}
             </div>
-            <div className="bg-white p-4 flex items-center space-x-2 border-t" style={{ height: "60px" }}>
+
+            {/* Input */}
+            <div className="p-4 bg-white flex items-center space-x-2">
                 <input
                     type="text"
                     placeholder="Type a message..."
-                    className="flex-1 border border-gray-300 p-2 rounded-md"
+                    className="flex-1 border border-gray-300 p-3 rounded-lg"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
                 />
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-md" onClick={handleSendMessage}>
+                <button
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+                    onClick={handleSendMessage}
+                >
                     Send
                 </button>
             </div>
-        </>
+        </div>
     );
 
     return (
-        <div className="bg-gray-100 min-h-screen flex">
+        <div>
             {selectedChatId ? renderMessages() : renderChatList()}
         </div>
     );
 };
 
 export default ChatPage;
+
