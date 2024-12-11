@@ -122,8 +122,8 @@ const ChatPage = () => {
             </div>
 
             {/* Input */}
-            <div className="fixed bottom-0 w-full bg-white p-4 z-10">
-                <div className="flex items-center space-x-2">
+            <div className="fixed bottom-0 w-full bg-white z-10">
+                <div className="flex items-center space-x-2 p-4">
                     <input
                         type="text"
                         placeholder="Type a message..."
@@ -131,6 +131,9 @@ const ChatPage = () => {
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                        style={{
+                            paddingBottom: "env(safe-area-inset-bottom)", // For iOS safe areas
+                        }}
                     />
                     <button
                         className="bg-blue-600 text-white px-4 py-2 rounded-lg"
@@ -140,6 +143,7 @@ const ChatPage = () => {
                     </button>
                 </div>
             </div>
+
         </div>
     );
 
