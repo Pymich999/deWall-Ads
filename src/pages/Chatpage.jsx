@@ -101,7 +101,7 @@ const ChatPage = () => {
             </div>
 
             {/* Messages */}
-            <div className="overflow-y-auto pb-[calc(env(safe-area-inset-bottom)+64px)] h-[calc(100vh-64px)]" >
+            <div className="flex-1 overflow-y-auto p-4 space-y-4" >
                 {messages.map((message) => (
                     <div
                         key={message.id}
