@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
     listenToMessages,
@@ -16,6 +16,15 @@ const ChatPage = () => {
     const [chatTitles, setChatTitles] = useState({});
     const [selectedChatId, setSelectedChatId] = useState(null);
     const navigate = useNavigate();
+
+    const messagesEndRef = useRef(null); // Ref for scrolling to the bottom of messages
+
+    // Scroll to bottom when messages update
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages]);
 
     useEffect(() => {
         if (!currentUser) return;
@@ -92,7 +101,7 @@ const ChatPage = () => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[calc(100vh-128px)]">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.map((message) => (
                     <div
                         key={message.id}
@@ -109,6 +118,7 @@ const ChatPage = () => {
                         </span>
                     </div>
                 ))}
+                <div ref={messagesEndRef} /> {/* Scroll target */}
             </div>
 
             {/* Input */}
@@ -131,8 +141,9 @@ const ChatPage = () => {
         </div>
     );
 
-    return <div>{selectedChatId ? renderMessages() : renderChatList()}</div>;
+    return <div className="h-screen overflow-hidden">{selectedChatId ? renderMessages() : renderChatList()}</div>;
 };
 
 export default ChatPage;
+
 
