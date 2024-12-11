@@ -101,13 +101,13 @@ const ChatPage = () => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="overflow-y-auto pb-[calc(env(safe-area-inset-bottom)+64px)] h-[calc(100vh-64px)]" >
                 {messages.map((message) => (
                     <div
                         key={message.id}
                         className={`p-3 rounded-lg w-fit max-w-[70%] ${message.senderId === currentUser.uid
-                                ? "bg-blue-500 text-white self-end"
-                                : "bg-gray-200 text-black self-start"
+                            ? "bg-blue-500 text-white self-end"
+                            : "bg-gray-200 text-black self-start"
                             }`}
                     >
                         <p>{message.text}</p>
@@ -122,21 +122,23 @@ const ChatPage = () => {
             </div>
 
             {/* Input */}
-            <div className="p-4 bg-white flex items-center space-x-2 sticky bottom-0">
-                <input
-                    type="text"
-                    placeholder="Type a message..."
-                    className="flex-1 border border-gray-300 p-3 rounded-lg"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                />
-                <button
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg"
-                    onClick={handleSendMessage}
-                >
-                    Send
-                </button>
+            <div className="fixed bottom-0 w-full bg-white p-4 z-10">
+                <div className="flex items-center space-x-2">
+                    <input
+                        type="text"
+                        placeholder="Type a message..."
+                        className="flex-1 border border-gray-300 p-3 rounded-lg"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                    />
+                    <button
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+                        onClick={handleSendMessage}
+                    >
+                        Send
+                    </button>
+                </div>
             </div>
         </div>
     );
