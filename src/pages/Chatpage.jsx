@@ -93,7 +93,7 @@ const ChatPage = () => {
             <div className="flex items-center bg-blue-600 text-white p-4 z-50">
                 <button
                     onClick={() => setSelectedChatId(null)}
-                    className="mb-6 text-sm text-blue-600 hover:underline"
+                    className="mb-6 text-sm text-black-620 hover:underline"
                 >
                     &larr; Back
                 </button>
