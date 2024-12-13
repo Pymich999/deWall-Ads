@@ -145,7 +145,7 @@ const ChatPage = () => {
 
     return (
         <div className="overflow-hidden"> {/* Prevent main page scroll */}
-            {selectedChatId ? renderMessages() : <ChatList />}
+            {selectedChatId ? renderMessages() : renderChatList()}
         </div>
     );
 };
