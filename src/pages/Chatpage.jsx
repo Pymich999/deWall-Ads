@@ -90,10 +90,10 @@ const ChatPage = () => {
     const renderMessages = () => (
         <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
             {/* Header */}
-            <div className="flex items-center bg-blue-600 text-white p-4 z-50">
+            <div className="flex items-center bg-blue-600 text-blue p-4 z-50">
                 <button
                     onClick={() => setSelectedChatId(null)}
-                    className="mb-6 text-sm text-black-620 hover:underline"
+                    className="mr-4 text-sm text-white hover:underline"
                 >
                     &larr; Back
                 </button>
