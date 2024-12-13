@@ -88,20 +88,17 @@ const ChatPage = () => {
     );
 
     const renderMessages = () => (
-        <div className="flex flex-col h-screen bg-gray-50">
+        <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
             {/* Header */}
-            <div className="flex items-center bg-blue-600 text-white p-4">
-                <button
-                    className="mr-4"
-                    onClick={() => setSelectedChatId(null)}
-                >
+            <div className="flex items-center bg-blue-600 text-white p-4 z-50">
+                <button className="mr-4" onClick={() => setSelectedChatId(null)}>
                     🔙
                 </button>
                 <h2 className="font-bold text-lg">{chatTitles[selectedChatId]}</h2>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4" >
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.map((message) => (
                     <div
                         key={message.id}
@@ -122,7 +119,7 @@ const ChatPage = () => {
             </div>
 
             {/* Input */}
-            <div className="sticky bottom-0 bg-white z-50">
+            <div className="bg-white z-50">
                 <div className="flex items-center space-x-2 p-4">
                     <input
                         type="text"
@@ -143,11 +140,14 @@ const ChatPage = () => {
                     </button>
                 </div>
             </div>
-
         </div>
     );
 
-    return <div className="h-screen overflow-hidden">{selectedChatId ? renderMessages() : renderChatList()}</div>;
+    return (
+        <div className="overflow-hidden"> {/* Prevent main page scroll */}
+            {selectedChatId ? renderMessages() : <ChatList />}
+        </div>
+    );
 };
 
 export default ChatPage;
