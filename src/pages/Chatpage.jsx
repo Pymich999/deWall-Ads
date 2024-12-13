@@ -91,8 +91,11 @@ const ChatPage = () => {
         <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
             {/* Header */}
             <div className="flex items-center bg-blue-600 text-white p-4 z-50">
-                <button className="mr-4" onClick={() => setSelectedChatId(null)}>
-                    🔙
+                <button
+                    onClick={() => setSelectedChatId(null)}
+                    className="mb-6 text-sm text-blue-600 hover:underline"
+                >
+                    &larr; Back
                 </button>
                 <h2 className="font-bold text-lg">{chatTitles[selectedChatId]}</h2>
             </div>
