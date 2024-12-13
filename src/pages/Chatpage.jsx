@@ -122,7 +122,7 @@ const ChatPage = () => {
             </div>
 
             {/* Input */}
-            <div className="fixed bottom-0 w-full bg-white z-10">
+            <div className="fixed bottom-0 w-full bg-white z-50">
                 <div className="flex items-center space-x-2 p-4">
                     <input
                         type="text"
