@@ -36,8 +36,6 @@ const AddWallForm = () => {
 
           if (userDoc.exists()) {
             const userData = userDoc.data();
-
-            // Safely fetch fields or set defaults if fields are missing
             const ownerUsername = userData.full_name || user.displayName || "Anonymous";
             const ownerPhone = userData.mobile || user.phoneNumber || "";
 
@@ -66,15 +64,15 @@ const AddWallForm = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setUploading(true); // Show loading indicator
+    setUploading(true);
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "wall_upload"); // Replace with your Cloudinary upload preset
+    formData.append("upload_preset", "wall_upload");
 
     try {
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/dubb7rhoy/image/upload`, // Replace with your Cloudinary URL
+        `https://api.cloudinary.com/v1_1/dubb7rhoy/image/upload`,
         {
           method: "POST",
           body: formData,
@@ -164,7 +162,7 @@ const AddWallForm = () => {
           <div className="mb-4 grid grid-cols-2 gap-4">
             <div>
               <label className="block text-blue-900 font-semibold mb-2">
-                Length (feet)
+                Length (feet) <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -173,11 +171,12 @@ const AddWallForm = () => {
                 value={wallData.size.length}
                 onChange={handleChange}
                 className="w-full p-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                required
               />
             </div>
             <div>
               <label className="block text-blue-900 font-semibold mb-2">
-                Width (feet)
+                Width (feet) <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -186,6 +185,7 @@ const AddWallForm = () => {
                 value={wallData.size.width}
                 onChange={handleChange}
                 className="w-full p-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                required
               />
             </div>
           </div>
@@ -193,7 +193,7 @@ const AddWallForm = () => {
           {/* Rent per Month */}
           <div className="mb-4">
             <label className="block text-blue-900 font-semibold mb-2">
-              Rent per Month (₹)
+              Rent per Month (₹) <span className="text-red-500">*</span>
             </label>
             <input
               type="number"
@@ -201,13 +201,14 @@ const AddWallForm = () => {
               value={wallData.rent_per_month}
               onChange={handleChange}
               className="w-full p-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
             />
           </div>
 
           {/* Image Upload */}
           <div className="mb-4">
             <label className="block text-blue-900 font-semibold mb-2">
-              Please add exactly 3 images:
+              Please add exactly 3 images: <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-3 gap-4">
               {wallData.photo_urls.map((url, index) => (
@@ -231,17 +232,17 @@ const AddWallForm = () => {
                     accept="image/*"
                     onChange={(e) => handleImageUpload(e, index)}
                     className="hidden"
+                    required
                   />
                 </label>
               ))}
             </div>
           </div>
 
-          {/* Continue Button */}
           <button
             onClick={() => setStep(2)}
             className="w-full bg-blue-600 text-white font-semibold p-2 rounded-md hover:bg-blue-700 transition duration-200"
-            disabled={uploading} // Disable button while uploading
+            disabled={uploading}
           >
             {uploading ? "Uploading..." : "Continue"}
           </button>
@@ -250,14 +251,21 @@ const AddWallForm = () => {
 
       {step === 2 && (
         <form onSubmit={handleSubmit}>
-          <h2 className="text-2xl font-bold mb-6 text-center text-blue-900">
-            Add Wall - Step 2
-          </h2>
+          <div className="flex items-center gap-4 mb-6">
+            <button
+              onClick={() => setStep(1)}
+              className="text-sm text-black hover:underline px-2 py-1"
+            >
+              &larr; Back
+            </button>
+            <h2 className="text-2xl font-bold text-blue-900">Add Wall - Step 2</h2>
+          </div>
+
 
           {/* Step 2 Inputs */}
           <div className="mb-4">
             <label className="block text-blue-900 font-semibold mb-2">
-              City
+              City <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -266,12 +274,13 @@ const AddWallForm = () => {
               value={wallData.city}
               onChange={handleChange}
               className="w-full p-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
             />
           </div>
 
           <div className="mb-4">
             <label className="block text-blue-900 font-semibold mb-2">
-              Pincode
+              Pincode <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -280,12 +289,13 @@ const AddWallForm = () => {
               value={wallData.pincode}
               onChange={handleChange}
               className="w-full p-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
             />
           </div>
 
           <div className="mb-4">
             <label className="block text-blue-900 font-semibold mb-2">
-              District
+              District <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -294,12 +304,13 @@ const AddWallForm = () => {
               value={wallData.district}
               onChange={handleChange}
               className="w-full p-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
             />
           </div>
 
           <div className="mb-4">
             <label className="block text-blue-900 font-semibold mb-2">
-              State
+              State <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -308,12 +319,13 @@ const AddWallForm = () => {
               value={wallData.state}
               onChange={handleChange}
               className="w-full p-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
             />
           </div>
 
           <div className="mb-4">
             <label className="block text-blue-900 font-semibold mb-2">
-              Locality (Address)
+              Locality (Address) <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -322,10 +334,10 @@ const AddWallForm = () => {
               value={wallData.locality}
               onChange={handleChange}
               className="w-full p-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
             />
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-full bg-blue-600 text-white font-semibold p-2 rounded-md hover:bg-blue-700 transition duration-200"

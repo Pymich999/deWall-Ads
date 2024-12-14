@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import { query, collection, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
-import WallItem from '../components/Wallitem';
+import WallItem from '../components/WallItem';
+import { useNavigate } from 'react-router-dom';
 
 const SearchWall = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSearch = async (e) => {
     e.preventDefault();
 
     if (searchTerm.trim() === '') return; // Prevent empty searches
 
+    setIsLoading(true);
     try {
       // Perform a Firestore query to search walls by tags
       const q = query(
@@ -28,7 +32,14 @@ const SearchWall = () => {
       setSearchResults(results);
     } catch (error) {
       console.error('Error searching walls:', error);
+      alert('Failed to fetch search results. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleWallClick = (wallId) => {
+    navigate(`/wall-details/${wallId}`);
   };
 
   return (
@@ -51,28 +62,30 @@ const SearchWall = () => {
         </button>
       </form>
 
-      <div className="wall-list grid grid-cols-1 gap-6">
-        {searchResults.length > 0 ? (
-          searchResults.map((wall) => (
-            <WallItem
-              key={wall.id}
-              city={wall.city}
-              district={wall.district}
-              coordinates={wall.coordinates}
-              pincode={wall.pincode}
-              photo_url={wall.photo_url}
-              owner_username={wall.owner_username}
-              available={wall.available}
-            />
-          ))
-        ) : (
-          <p className="text-blue-700 font-semibold text-center">No results found.</p>
-        )}
-      </div>
+      {isLoading ? (
+        <p className="text-center text-blue-600 font-semibold">Searching...</p>
+      ) : (
+        <div className="wall-list grid grid-cols-1 gap-6">
+          {searchResults.length > 0 ? (
+            searchResults.map((wall) => (
+              <WallItem
+                key={wall.id}
+                city={wall.city}
+                state={wall.state}
+                pincode={wall.pincode}
+                photo_urls={wall.photo_urls}
+                size={wall.size}
+                timestamp={wall.timestamp}
+                onClick={() => handleWallClick(wall.id)} // Pass the wall ID
+              />
+            ))
+          ) : (
+            <p className="text-blue-700 font-semibold text-center">No results found.</p>
+          )}
+        </div>
+      )}
     </div>
-
   );
 };
 
 export default SearchWall;
-

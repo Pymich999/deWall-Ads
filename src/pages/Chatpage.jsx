@@ -118,7 +118,7 @@ const ChatPage = () => {
                         </span>
                     </div>
                 ))}
-                <div ref={messagesEndRef} /> {/* Scroll target */}
+                <div ref={messagesEndRef} />
             </div>
 
             {/* Input */}
@@ -130,14 +130,10 @@ const ChatPage = () => {
                         className="flex-1 border border-gray-300 p-3 rounded-lg"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                        style={{
-                            paddingBottom: "env(safe-area-inset-bottom)", // For iOS safe areas
-                        }}
                     />
                     <button
                         className="bg-blue-600 text-white px-4 py-2 rounded-lg"
-                        onClick={handleSendMessage}
+                        onClick={() => handleSendMessage()}
                     >
                         Send
                     </button>
@@ -145,6 +141,7 @@ const ChatPage = () => {
             </div>
         </div>
     );
+
 
     return (
         <div className="overflow-hidden"> {/* Prevent main page scroll */}
