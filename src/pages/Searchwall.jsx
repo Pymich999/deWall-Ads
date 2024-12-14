@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { query, collection, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
-import WallItem from '../components/WallItem';
+import WallItem from '../components/Wallitem';
 import { useNavigate } from 'react-router-dom';
 
 const SearchWall = () => {

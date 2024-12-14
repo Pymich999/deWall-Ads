@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import fetchWallList from "../components/Fetchwalllist";
-import WallItem from "../components/WallItem";
+import WallItem from "../components/Wallitem";
 import CategoryTabs from "../components/Category";
 import BenefitsSection from "../components/Benefit";
 import Howto from "../components/Howtouse";
