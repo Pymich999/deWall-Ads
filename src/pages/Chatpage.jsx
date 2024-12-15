@@ -74,7 +74,7 @@ const ChatPage = () => {
 
     const renderChatList = () => (
         <div className="bg-white p-4 h-screen overflow-y-auto">
-            <h2 className="font-bold text-lg mb-4">Conversations</h2>
+            <h2 className="font-bold text-lg mb-4">Connections</h2>
             {chatList.map((chat) => (
                 <button
                     key={chat.id}
