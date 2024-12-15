@@ -50,10 +50,10 @@ const Profile = () => {
         console.error("Error fetching user posts:", err);
       }
     };
-  
+
     fetchUserPosts();
   }, []);
-  
+
 
 
   const handleLogout = async () => {
@@ -85,42 +85,41 @@ const Profile = () => {
             </div>
           </div>
         );
-        case "posts":
-          return (
-            <div>
-              <h2 className="text-2xl font-bold text-blue-800 mb-4">My Posts</h2>
-              <div className="space-y-4">
-                {userPosts.length > 0 ? (
-                  userPosts.map((post) => (
-                    <div
-                      key={post.id}
-                      className="border rounded-lg p-4 shadow-md hover:shadow-lg bg-gray-50"
-                    >
-                      <h3 className="text-lg font-semibold text-blue-800">{post.city || "N/A"}</h3>
-                      <p className="text-blue-600">{post.size ? `${post.size.length} x ${post.size.width}` : "N/A"} </p>
-                      <div className="flex justify-between items-center mt-2">
-                        <span
-                          className={`px-2 py-1 rounded-full text-white ${
-                            post.approved ? "bg-green-500" : "bg-red-500"
+      case "posts":
+        return (
+          <div>
+            <h2 className="text-2xl font-bold text-blue-800 mb-4">My Posts</h2>
+            <div className="space-y-4">
+              {userPosts.length > 0 ? (
+                userPosts.map((post) => (
+                  <div
+                    key={post.id}
+                    className="border rounded-lg p-4 shadow-md hover:shadow-lg bg-gray-50"
+                  >
+                    <h3 className="text-lg font-semibold text-blue-800">{post.city || "N/A"}</h3>
+                    <p className="text-blue-600">{post.size ? `${post.size.length} x ${post.size.width}` : "N/A"} </p>
+                    <div className="flex justify-between items-center mt-2">
+                      <span
+                        className={`px-2 py-1 rounded-full text-white ${post.approved ? "bg-green-500" : "bg-red-500"
                           }`}
-                        >
-                          {post.approved ? "Approved" : "Rejected"}
-                        </span>
-                        <button
-                          onClick={() => navigate(`/wall-details/${post.id}`)}
-                          className="text-blue-600 underline"
-                        >
-                          View Details
-                        </button>
-                      </div>
+                      >
+                        {post.approved ? "Approved" : "Rejected"}
+                      </span>
+                      <button
+                        onClick={() => navigate(`/wall-details/${post.id}`)}
+                        className="text-blue-600 underline"
+                      >
+                        View Details
+                      </button>
                     </div>
-                  ))
-                ) : (
-                  <p className="text-center text-blue-800">No posts available.</p>
-                )}
-              </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-blue-800">No posts available.</p>
+              )}
             </div>
-          );
+          </div>
+        );
 
       case "dashboard":
         return (
@@ -169,9 +168,26 @@ const Profile = () => {
                 onClick={() => setIsHelpModalOpen(true)}
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
               >
-                🤝 Help and Support
+                ❓ Help
               </button>
             </div>
+            {isHelpModalOpen && (
+              <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+                <div className="bg-white p-6 rounded-lg shadow-lg relative">
+                  <button
+                    onClick={() => setIsHelpModalOpen(false)}
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full px-2 py-1 hover:bg-red-600"
+                  >
+                    ✖
+                  </button>
+                  <h2 className="text-xl font-bold text-blue-800 mb-4">Help and Support</h2>
+                  <p className="text-blue-900 mb-2">
+                    📧 Email: <a href="mailto:support@dewallads.com">support@dewallads.com</a>
+                  </p>
+                  <p className="text-blue-900 mb-4">📞 Phone: +123 456 7890</p>
+                </div>
+              </div>
+            )}
             <button
               onClick={handleLogout}
               className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
@@ -180,6 +196,8 @@ const Profile = () => {
             </button>
           </div>
         );
+
+
 
       default:
         return null;
