@@ -32,7 +32,7 @@ const SearchWall = () => {
       setSearchResults(results);
     } catch (error) {
       console.error('Error searching walls:', error);
-      alert('Failed to fetch search results. Please try again.');
+      alert('Failed to fetch search results.');
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +80,7 @@ const SearchWall = () => {
               />
             ))
           ) : (
-            <p className="text-blue-700 font-semibold text-center">No results found.</p>
+            <p className="text-blue-700 font-semibold text-center">No results found, try again using lowercase.</p>
           )}
         </div>
       )}
